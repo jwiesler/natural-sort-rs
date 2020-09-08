@@ -2,6 +2,12 @@
 name = "natural_sort"
 version = "0.1.0"
 authors = ["Julian Wiesler <wiesleju@gmail.com>"]
-edition = "2020"
+edition = "2018"
+license = "MIT"
+readme = "README.md"
+keywords = ["sorting"]
+repository = "https://github.com/jwiesler/natural-sort-rs"
+homepage = "https://github.com/jwiesler/natural-sort-rs"
+description = "Minimal and efficient implementation of natural sort order in Rust"
 
 [dependencies]
