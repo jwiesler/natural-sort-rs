@@ -1,0 +1,7 @@
+[package]
+name = "natural_sort"
+version = "0.1.0"
+authors = ["Julian Wiesler <wiesleju@gmail.com>"]
+edition = "2020"
+
+[dependencies]
