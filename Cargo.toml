@@ -11,3 +11,12 @@ homepage = "https://github.com/jwiesler/natural-sort-rs"
 description = "Minimal and efficient implementation of natural sort order in Rust"
 
 [dependencies]
+
+[dev-dependencies]
+rand = "0.7.3"
+rand_chacha = "0.2.2"
+criterion = "0.3"
+
+[[bench]]
+name = "benchmark"
+harness = false
