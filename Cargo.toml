@@ -2,7 +2,7 @@
 name = "natural_sort"
 version = "0.1.0"
 authors = ["Julian Wiesler <wiesleju@gmail.com>"]
-edition = "2018"
+edition = "2024"
 license = "MIT"
 readme = "README.md"
 keywords = ["sorting"]
@@ -14,7 +14,7 @@ description = "Minimal and efficient implementation of natural sort order in Rus
 
 [dev-dependencies]
 rand = "0.9.0"
-rand_chacha = "0.2.2"
+rand_chacha = "0.9.0"
 criterion = "0.7"
 
 [[bench]]

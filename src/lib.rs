@@ -1,5 +1,5 @@
-use std::cmp::{min, Ordering};
 use std::cmp::Ordering::{Equal, Greater, Less};
+use std::cmp::{Ordering, min};
 
 #[derive(PartialEq, Eq, Debug)]
 struct Chunk<'a> {
@@ -13,12 +13,12 @@ impl<'a> Chunk<'a> {
     }
 }
 
-fn natural_chunk(a: &str) -> Chunk {
+fn natural_chunk(a: &str) -> Chunk<'_> {
     let is_digit = match a.as_bytes().first() {
         None => return Chunk::new(a, false),
         Some(c) => c.is_ascii_digit(),
     };
-    for (i, c ) in a.bytes().enumerate() {
+    for (i, c) in a.bytes().enumerate() {
         if c.is_ascii_digit() != is_digit {
             return Chunk::new(&a[..i], is_digit);
         }
@@ -34,20 +34,20 @@ pub fn natural_cmp_old(mut a: &str, mut b: &str) -> Ordering {
         if chunk_a.are_digits && chunk_b.are_digits {
             match chunk_a.chars.len().cmp(&chunk_b.chars.len()) {
                 Ordering::Equal => (),
-                v @ _ => return v,
+                v => return v,
             }
         }
 
         match chunk_a.chars.cmp(chunk_b.chars) {
             Ordering::Equal => (),
-            v @ _ => return v,
+            v => return v,
         }
 
         a = &a[chunk_a.chars.len()..];
         b = &b[chunk_b.chars.len()..];
     }
 
-    return a.len().cmp(&b.len());
+    a.len().cmp(&b.len())
 }
 
 pub fn natural_cmp(left: &str, right: &str) -> Ordering {
@@ -74,7 +74,7 @@ pub fn natural_cmp(left: &str, right: &str) -> Ordering {
         if !matches!(res, Equal) {
             break res;
         }
-        i = i + 1;
+        i += 1;
     };
 
     // special case: last char could have been a number
@@ -86,10 +86,8 @@ pub fn natural_cmp(left: &str, right: &str) -> Ordering {
                 if rhs[i - 1].is_ascii_digit() {
                     return Less;
                 }
-            } else if l_digit {
-                if lhs[i - 1].is_ascii_digit() {
-                    return Greater;
-                }
+            } else if l_digit && lhs[i - 1].is_ascii_digit() {
+                return Greater;
             }
         }
         return res;
@@ -101,7 +99,7 @@ pub fn natural_cmp(left: &str, right: &str) -> Ordering {
     // ...2
     //     ^
     loop {
-        i = i + 1;
+        i += 1;
         if i == l {
             // in this case we don't know yet who wins
             break;
@@ -132,10 +130,8 @@ pub fn natural_cmp(left: &str, right: &str) -> Ordering {
         if left.as_bytes()[l].is_ascii_digit() {
             return Greater;
         }
-    } else if right.len() != l {
-        if right.as_bytes()[l].is_ascii_digit() {
-            return Less;
-        }
+    } else if right.len() != l && right.as_bytes()[l].is_ascii_digit() {
+        return Less;
     }
     res
 }
@@ -181,20 +177,24 @@ mod tests {
         assert_eq!(Ordering::Greater, natural_cmp("221", "12a"));
     }
 
-    use rand::prelude::*;
+    use rand::Rng;
+    use rand::distr::{Distribution, Uniform};
     use rand_chacha::ChaCha20Rng;
-    use rand::distributions::Uniform;
+    use rand_chacha::rand_core::SeedableRng;
 
     const CHARACTERS: &str = "ABCDEF123456";
 
-    fn generate_string(rng: &mut ChaCha20Rng) -> String {
-        let count_distribution: Uniform<u32> = Uniform::new(1, 10);
-        let character_distribution: Uniform<u32> = Uniform::new(1, CHARACTERS.len() as u32);
+    fn generate_string<R: Rng + ?Sized>(rng: &mut R) -> String {
+        let count_distribution: Uniform<u32> = Uniform::new(1, 10).unwrap();
+        let character_distribution: Uniform<u32> =
+            Uniform::new(1, CHARACTERS.len() as u32).unwrap();
         let mut res = String::new();
         let count = count_distribution.sample(rng);
         res.reserve(count as usize);
         for _ in 0..count {
-           res.push(char::from(CHARACTERS.as_bytes()[character_distribution.sample(rng) as usize]));
+            res.push(char::from(
+                CHARACTERS.as_bytes()[character_distribution.sample(rng) as usize],
+            ));
         }
         res
     }
@@ -205,7 +205,10 @@ mod tests {
         for _ in 0..10000 {
             let a = generate_string(&mut rng);
             let b = generate_string(&mut rng);
-            assert_eq!(natural_cmp_old(a.as_str(), b.as_str()), natural_cmp(a.as_str(), b.as_str()));
+            assert_eq!(
+                natural_cmp_old(a.as_str(), b.as_str()),
+                natural_cmp(a.as_str(), b.as_str())
+            );
         }
     }
 }
